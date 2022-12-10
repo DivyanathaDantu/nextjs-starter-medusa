@@ -9,6 +9,7 @@ import clsx from "clsx"
 import React, { Fragment, useMemo } from "react"
 import { Product } from "types/medusa"
 import OptionSelect from "../option-select"
+import Link from "next/link"
 
 type MobileActionsProps = {
   product: Product
@@ -66,7 +67,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
                   </span>
                 </div>
               ) : (
-                <div></div>
+                <div />
               )}
             </div>
             <div className="grid grid-cols-2 w-full gap-x-4">
@@ -80,7 +81,9 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
                   <ChevronDown />
                 </div>
               </Button>
+              <Link href={"/zoom"}>
               <Button onClick={addToCart}>{!inStock ? "Out of stock" : "Place your bid"}</Button>
+              </Link>
             </div>
           </div>
         </Transition>
