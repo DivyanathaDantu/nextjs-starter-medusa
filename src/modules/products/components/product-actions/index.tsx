@@ -4,6 +4,7 @@ import Button from "@modules/common/components/button"
 import OptionSelect from "@modules/products/components/option-select"
 import clsx from "clsx"
 import Link from "next/link"
+import Router from "next/router"
 import React, { useMemo } from "react"
 import { Product } from "types/medusa"
 
@@ -78,13 +79,15 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
             )}
           </div>
         ) : (
-          <div></div>
+          <div />
         )}
       </div>
 
+      <Link href={"/zoom"}>
       <Button onClick={addToCart}>
         {!inStock ? "Out of stock" : "Place your bid"}
       </Button>
+      </Link>
     </div>
   )
 }
