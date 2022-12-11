@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react"
+import { useAccount } from "@lib/context/account-context"
 import { useProductActions } from "@lib/context/product-context"
 import useProductPrice from "@lib/hooks/use-product-price"
 import useToggleState from "@lib/hooks/use-toggle-state"
@@ -6,10 +7,10 @@ import Button from "@modules/common/components/button"
 import ChevronDown from "@modules/common/icons/chevron-down"
 import X from "@modules/common/icons/x"
 import clsx from "clsx"
-import React, { Fragment, useMemo } from "react"
+import router from "next/router"
+import React, { Fragment, useMemo, useState } from "react"
 import { Product } from "types/medusa"
 import OptionSelect from "../option-select"
-import Link from "next/link"
 
 type MobileActionsProps = {
   product: Product
@@ -27,6 +28,13 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
 
     return variantPrice || cheapestPrice || null
   }, [price])
+
+  const { customer, retrievingCustomer, refetchCustomer } = useAccount()
+  const NavigationPage = ()=>{
+    let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
+    console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
+    router.push(page)
+  }
 
   return (
     <>
@@ -81,9 +89,9 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
                   <ChevronDown />
                 </div>
               </Button>
-              <Link href={"/zoom"}>
-              <Button onClick={addToCart}>{!inStock ? "Out of stock" : "Place your bid"}</Button>
-              </Link>
+              <Button onClick= {()=>{{addToCart}; NavigationPage()}}>
+                {!inStock ? "Out of stock" : "Place your bid"}
+              </Button>
             </div>
           </div>
         </Transition>

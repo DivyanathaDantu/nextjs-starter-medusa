@@ -1,11 +1,13 @@
+import { useAccount } from "@lib/context/account-context"
 import { useProductActions } from "@lib/context/product-context"
 import useProductPrice from "@lib/hooks/use-product-price"
 import Button from "@modules/common/components/button"
 import OptionSelect from "@modules/products/components/option-select"
 import clsx from "clsx"
+import { Router } from "medusa-extender"
 import Link from "next/link"
-import Router from "next/router"
-import React, { useMemo } from "react"
+import router from "next/router"
+import React, { useMemo, useState } from "react"
 import { Product } from "types/medusa"
 
 type ProductActionsProps = {
@@ -23,6 +25,13 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
 
     return variantPrice || cheapestPrice || null
   }, [price])
+
+  const { customer, retrievingCustomer, refetchCustomer } = useAccount()
+  const NavigationPage = ()=>{
+    let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
+    console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
+    router.push(page)
+  }
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -83,11 +92,9 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
         )}
       </div>
 
-      <Link href={"/zoom"}>
-      <Button onClick={addToCart}>
+      <Button onClick= {()=>{{addToCart}; NavigationPage()}}>
         {!inStock ? "Out of stock" : "Place your bid"}
       </Button>
-      </Link>
     </div>
   )
 }

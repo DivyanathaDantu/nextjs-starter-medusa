@@ -3,54 +3,76 @@ import generateSignature from "@modules/zoom/signature"
 import Layout from '@modules/layout/templates';
 import ZoomMtgEmbedded from '@zoomus/websdk/embedded'
 import Button from '@modules/common/components/button';
+import { useEffect, useState } from 'react';
+import axios from 'axios'
+import { useAccount } from '@lib/context/account-context';
 
-function ZoomApp(){
-console.log("started calling zoom api")
-const client = ZoomMtgEmbedded.createClient()
+function StartMeeting(){
+  const { customer } = useAccount();
+  let userName = 'NextJs';
+  let userEmail = ''
+  if(customer){
+    userName = customer.first_name + customer.last_name;
+    userEmail = customer.email;
+  }
+  console.log("started calling zoom api");
+  const client = ZoomMtgEmbedded.createClient();
   ZoomMtg.setZoomJSLib('https://source.zoom.us/2.9.5/lib', '/av');
   ZoomMtg.preLoadWasm();
   ZoomMtg.prepareWebSDK();
   // loads language files, also passes any error messages to the ui
   ZoomMtg.i18n.load('en-US');
   ZoomMtg.i18n.reload('en-US');
-  const meetingN = 92735651344
-  const meetingNumber = meetingN.toString()
+  const[meetingNumber, setMeetingNumber] = useState("");
+  const [passWord, setPassWord] = useState("");
+    useEffect(()=>{
+      async function getMeetingDetails(){
+      const nextUrl = process.env.NEXT_PUBLIC_URL
+      try {
+          const res = await axios.get(`${nextUrl}/api/zoom/createMeeting`);
+          setMeetingNumber(res.data.id);
+          setPassWord(res.data.password);
+          console.log(`${res.data.id}`);
+        } catch (error) {
+           console.log(error);
+        }
+    }
+    getMeetingDetails(); 
+  },[])
+  console.log(`${meetingNumber}`)
   console.log("before generating zoom api signature")
-  function getSignature() {
     console.log("generating zoom api signature")
   var role = 0
   let signature = generateSignature(meetingNumber, role)
-  startMeeting(signature)
-  }
-    // rome-ignore lint/suspicious/noExplicitAny: <explanation>
-  function  startMeeting(signature: any) {
+  function  joinMeeting() {
 
         let meetingSDKElement = document.getElementById('meetingSDKElement');
-        var userName = 'NextJs'
-        var userEmail = ''
-        var passWord = 'F2neEE'
         var registrantToken = ''
-        var sdkKey = 'iDVCD106BYolkelDVsNet1ytRolCYWQqBhDv'
+        var sdkKey = process.env.NEXT_PUBLIC_ZOOM_SDK_KEY;
     
-        client.init({
-          zoomAppRoot: meetingSDKElement,
-          language: 'en-US',
-          customize: {
-            video: {
-              isResizable: true,
-              viewSizes: {
-                default: {
-                  width: 1000,
-                  height: 600
-                },
-                ribbon: {
-                  width: 300,
-                  height: 700
+        try{
+          client.init({
+            zoomAppRoot: meetingSDKElement,
+            language: 'en-US',
+            customize: {
+              video: {
+                isResizable: true,
+                viewSizes: {
+                  default: {
+                    width: 800,
+                    height: 600
+                  },
+                  ribbon: {
+                    width: 400,
+                    height: 600
+                  }
                 }
               }
             }
-          }
-        })
+          })
+        } catch(error){
+          console.log(error)
+        }
     
         client.join({
           sdkKey: sdkKey,
@@ -73,7 +95,7 @@ const client = ZoomMtgEmbedded.createClient()
           {/* Zoom Meeting SDK Component View Rendered Here */}
         </div>
 
-        <Button onClick={getSignature}>Join Meeting</Button>
+        <Button onClick={joinMeeting}>Join Meeting</Button>
       </section>
     </div>
       </Layout>
@@ -81,4 +103,4 @@ const client = ZoomMtgEmbedded.createClient()
 
     }
   
-  export default ZoomApp;
+  export default StartMeeting;
