@@ -7,8 +7,8 @@ import Button from "@modules/common/components/button"
 import ChevronDown from "@modules/common/icons/chevron-down"
 import X from "@modules/common/icons/x"
 import clsx from "clsx"
-import router from "next/router"
-import React, { Fragment, useMemo, useState } from "react"
+import router, { useRouter } from "next/router"
+import React, { Fragment, useMemo } from "react"
 import { Product } from "types/medusa"
 import OptionSelect from "../option-select"
 
@@ -22,6 +22,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
   const { state, open, close } = useToggleState()
 
   const price = useProductPrice({ id: product.id, variantId: variant?.id })
+  const productId = product.id;
+  const variantId = variant?.id;
 
   const selectedPrice = useMemo(() => {
     const { variantPrice, cheapestPrice } = price
@@ -33,7 +35,10 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
   const NavigationPage = ()=>{
     let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
     console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
-    router.push(page)
+    router.push({
+      pathname: page,
+      query:{ productId, variantId }
+    })
   }
 
   return (

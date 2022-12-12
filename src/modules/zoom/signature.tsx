@@ -2,7 +2,7 @@ const KJUR = require('jsrsasign')
 let sdkKey = process.env.NEXT_PUBLIC_ZOOM_SDK_KEY;
 let sdkSecret = process.env.NEXT_PUBLIC_ZOOM_SDK_SECRET
 
-function generateSignature(meetingNumber : string, role : number) {
+function generateSignature(meetingNumber : number, role : number) {
   console.log(`${meetingNumber} divi`)
 
     const iat = Math.round((new Date().getTime() - 30000) / 1000)

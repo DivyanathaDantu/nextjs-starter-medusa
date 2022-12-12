@@ -4,10 +4,9 @@ import useProductPrice from "@lib/hooks/use-product-price"
 import Button from "@modules/common/components/button"
 import OptionSelect from "@modules/products/components/option-select"
 import clsx from "clsx"
-import { Router } from "medusa-extender"
 import Link from "next/link"
 import router from "next/router"
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { Product } from "types/medusa"
 
 type ProductActionsProps = {
@@ -19,6 +18,8 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
     useProductActions()
 
   const price = useProductPrice({ id: product.id, variantId: variant?.id })
+  const productId = product.id;
+  const variantId = variant?.id;
 
   const selectedPrice = useMemo(() => {
     const { variantPrice, cheapestPrice } = price
@@ -30,7 +31,10 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
   const NavigationPage = ()=>{
     let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
     console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
-    router.push(page)
+    router.push({
+      pathname: page,
+      query:{ productId, variantId }
+    })
   }
 
   return (

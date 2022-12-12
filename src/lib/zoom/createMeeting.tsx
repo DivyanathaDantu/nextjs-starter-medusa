@@ -12,7 +12,7 @@ export default async function createMeting(){
     
     const bodyParameters = {
         "agenda" : "Auction-House",
-        "duration" : 1
+        "duration" : 2
     };
 
     try {

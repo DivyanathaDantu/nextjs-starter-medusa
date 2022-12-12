@@ -4,15 +4,16 @@ import Layout from '@modules/layout/templates';
 import ZoomMtgEmbedded from '@zoomus/websdk/embedded'
 import Button from '@modules/common/components/button';
 import { useEffect, useState } from 'react';
-import axios from 'axios'
 import { useAccount } from '@lib/context/account-context';
+import getMeetingDetails from '@modules/zoom/createMeeting'
+import { useRouter } from 'next/router';
 
 function StartMeeting(){
   const { customer } = useAccount();
   let userName = 'NextJs';
   let userEmail = ''
   if(customer){
-    userName = customer.first_name + customer.last_name;
+    userName = customer.first_name + " " + customer.last_name;
     userEmail = customer.email;
   }
   console.log("started calling zoom api");
@@ -23,32 +24,29 @@ function StartMeeting(){
   // loads language files, also passes any error messages to the ui
   ZoomMtg.i18n.load('en-US');
   ZoomMtg.i18n.reload('en-US');
-  const[meetingNumber, setMeetingNumber] = useState("");
+  const[meetingNumber, setMeetingNumber] = useState(0);
   const [passWord, setPassWord] = useState("");
-    useEffect(()=>{
-      async function getMeetingDetails(){
-      const nextUrl = process.env.NEXT_PUBLIC_URL
-      try {
-          const res = await axios.get(`${nextUrl}/api/zoom/createMeeting`);
-          setMeetingNumber(res.data.id);
-          setPassWord(res.data.password);
-          console.log(`${res.data.id}`);
-        } catch (error) {
-           console.log(error);
+  const router = useRouter();
+  const {query:{productId, variantId},} = router;
+      useEffect(()=>{
+        async function meetingDetails(){
+        const meetingDetails : Array<string> = await getMeetingDetails(productId, variantId);
+        console.log(`meeting details-${parseInt(meetingDetails[0].replaceAll('"', ''))}`);
+        setMeetingNumber(parseInt(meetingDetails[0].replaceAll('"', '')));
+        setPassWord(meetingDetails[1].replaceAll('"', ''));
         }
-    }
-    getMeetingDetails(); 
-  },[])
-  console.log(`${meetingNumber}`)
-  console.log("before generating zoom api signature")
+        meetingDetails();
+    },[])
     console.log("generating zoom api signature")
-  var role = 0
-  let signature = generateSignature(meetingNumber, role)
+    console.log(`outside join meeting ${meetingNumber}`)
+    let role = 0
+    let signature = generateSignature(meetingNumber, role)
   function  joinMeeting() {
-
         let meetingSDKElement = document.getElementById('meetingSDKElement');
         var registrantToken = ''
         var sdkKey = process.env.NEXT_PUBLIC_ZOOM_SDK_KEY;
+        console.log(`inside join meeting ${meetingNumber}`)
+        console.log(`before joining the meeting- ${passWord}`)
     
         try{
           client.init({
@@ -81,7 +79,7 @@ function StartMeeting(){
           password: passWord,
           userName: userName,
           userEmail: userEmail,
-          tk: registrantToken
+          tk: registrantToken,
         })
     }
     return (
