@@ -86,8 +86,11 @@ function StartMeeting(){
       <Layout>
         <div className="App">
       <section>
-        <h1>Please join the zoom meeting and place your bid in the chat of zoom meeting</h1>
-
+        <div className="flex flex-col items-center text-center mb-16">
+          <p className="text-2xl-regular text-gray-900 max-w-lg mb-4">
+            Please join the zoom meeting and place your bid in the chat of zoom meeting
+          </p>
+        </div>
         {/* For Component View */}
         <div id="meetingSDKElement">
           {/* Zoom Meeting SDK Component View Rendered Here */}
