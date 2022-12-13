@@ -5,7 +5,7 @@ module.exports = withStoreConfig({
   features: store.features,
   reactStrictMode: true,
   images: {
-    domains: ["medusa-public-images.s3.eu-west-1.amazonaws.com", "localhost", "20.169.254.186"],
+    domains: ["medusa-public-images.s3.eu-west-1.amazonaws.com", "localhost", "20.169.254.186", "minio.divyanatha.cloud"],
   },
 })
 
