@@ -7,9 +7,11 @@ import { useEffect, useState } from 'react';
 import { useAccount } from '@lib/context/account-context';
 import getMeetingDetails from '@modules/zoom/createMeeting'
 import { useRouter } from 'next/router';
+import clsx from 'clsx';
 
 function StartMeeting(){
   const { customer } = useAccount();
+  const [hide, setHide] = useState(false);
   let userName = 'NextJs';
   let userEmail = ''
   if(customer){
@@ -41,7 +43,8 @@ function StartMeeting(){
     console.log(`outside join meeting ${meetingNumber}`)
     let role = 0
     let signature = generateSignature(meetingNumber, role)
-  function  joinMeeting() {
+  function  joinMeeting(this: any) {
+    if(!hide){
         let meetingSDKElement = document.getElementById('meetingSDKElement');
         var registrantToken = ''
         var sdkKey = process.env.NEXT_PUBLIC_ZOOM_SDK_KEY;
@@ -81,6 +84,8 @@ function StartMeeting(){
           userEmail: userEmail,
           tk: registrantToken,
         })
+        setHide(true)
+    }
     }
     return (
       <Layout>
@@ -96,7 +101,7 @@ function StartMeeting(){
           {/* Zoom Meeting SDK Component View Rendered Here */}
         </div>
 
-        <Button onClick={joinMeeting}>Join Meeting</Button>
+        <Button onClick={joinMeeting} className = {clsx({"opacity-25 cursor-not-allowed": hide,})}>Join Meeting</Button>
       </section>
     </div>
       </Layout>
