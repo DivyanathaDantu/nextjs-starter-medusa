@@ -14,9 +14,9 @@ type ProductActionsProps = {
 }
 
 const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
-  const { updateOptions, addToCart, options, inStock, variant } =
-    useProductActions()
-
+  const { updateOptions, addToCart, options, inStock, variant, highestBid, userName } = useProductActions()
+  const parsedHighestBid = parseInt(highestBid.replace("$",""));
+  const buttonText = (parsedHighestBid>0) ? "Sold out" : "Place your bid"
   const price = useProductPrice({ id: product.id, variantId: variant?.id })
   const productId = product.id;
   const variantId = variant?.id;
@@ -28,7 +28,15 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
   }, [price])
 
   const { customer, retrievingCustomer, refetchCustomer } = useAccount()
+  const bidWinner = useMemo(() => {
+    let curCustomer = ((!retrievingCustomer) && customer) ? (customer.first_name + " " + customer.last_name) : "loading!";
+    console.log(`Is current customer the winner - ${curCustomer === userName}`);
+    return (curCustomer === userName) ? true : false;
+  },[product])
   const NavigationPage = ()=>{
+    if(parsedHighestBid>0){
+      return;
+    }
     let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
     console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
     router.push({
@@ -68,6 +76,15 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
       )}
 
       <div className="mb-4">
+      {parsedHighestBid > 0? (<div className="flex items-end gap-x-2 text-gray-700">
+                  <span>
+                  {bidWinner ? `Highest bid was - ${highestBid} you are the winner. Please contact us.`
+                    : `Highest bid was - ${highestBid} winner - ${userName}` }
+                  </span>
+                </div>
+
+              ):
+        <div>
         {selectedPrice ? (
           <div className="flex flex-col text-gray-700">
             <span
@@ -94,10 +111,11 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
         ) : (
           <div />
         )}
+        </div>}
       </div>
 
-      <Button onClick= {()=>{{addToCart}; NavigationPage()}}>
-        {!inStock ? "Out of stock" : "Place your bid"}
+      <Button onClick= {()=>{{addToCart}; NavigationPage()}}  className = {clsx({"opacity-25 cursor-not-allowed": parsedHighestBid,})}>
+        {!inStock ? "Out of stock" : buttonText}
       </Button>
     </div>
   )

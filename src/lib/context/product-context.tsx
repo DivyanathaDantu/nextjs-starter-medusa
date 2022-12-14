@@ -24,6 +24,8 @@ interface ProductContext {
   increaseQuantity: () => void
   decreaseQuantity: () => void
   addToCart: () => void
+  highestBid: string
+  userName: string
 }
 
 const ProductActionContext = createContext<ProductContext | null>(null)
@@ -108,6 +110,29 @@ export const ProductProvider = ({
     }
   }, [variant, variants, cart])
 
+  const highestBid = useMemo(() => {
+    if(product.metadata){
+      if(product.metadata.highestBid){
+        console.log(`highestBid --  ${product.metadata.highestBid}`);
+        const bid = product.metadata.highestBid;
+        return bid != "" ? bid : "0" ;
+      }
+  }
+  return "0";
+  }, [product])
+
+  const userName = useMemo(() => {
+    if(product.metadata){
+      if(product.metadata.userName){
+        console.log(`Bid won by -- ${product.metadata.userName}`);
+        const user = product.metadata.userName;
+        return  user ? user : "";
+      }
+  }
+  return ""
+  }, [product])
+
+
   useEffect(() => {
     if (variant) {
       setInStock(canBuy(variant))
@@ -161,6 +186,8 @@ export const ProductProvider = ({
         decreaseQuantity,
         increaseQuantity,
         formattedPrice,
+        highestBid,
+        userName
       }}
     >
       {children}

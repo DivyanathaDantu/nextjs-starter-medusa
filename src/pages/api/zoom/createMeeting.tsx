@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import createMeting from "@lib/zoom/createMeeting";
+import createMeting from "@modules/zoom-api/createZoomMeeting";
 
 export default async function handler(req: NextRequest, res: NextResponse) {
     const filteredRes = await Promise.resolve(createMeting())

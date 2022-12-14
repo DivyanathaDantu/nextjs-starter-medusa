@@ -18,7 +18,9 @@ type MobileActionsProps = {
 }
 
 const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
-  const { variant, addToCart, options, inStock, updateOptions } = useProductActions()
+  const { variant, addToCart, options, inStock, updateOptions, userName, highestBid } = useProductActions()
+  const parsedHighestBid = parseInt(highestBid.replace("$",""));
+  const buttonText = (parsedHighestBid>0) ? "Sold out" : "Place your bid"
   const { state, open, close } = useToggleState()
 
   const price = useProductPrice({ id: product.id, variantId: variant?.id })
@@ -31,7 +33,13 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
     return variantPrice || cheapestPrice || null
   }, [price])
 
-  const { customer, retrievingCustomer, refetchCustomer } = useAccount()
+  const { customer, retrievingCustomer } = useAccount()
+  const bidWinner = useMemo(() => {
+    let curCustomer = ((!retrievingCustomer) && customer) ? (customer.first_name + " " + customer.last_name) : "loading!";
+    console.log(`Is current customer the winner - ${curCustomer === userName}`);
+    return (curCustomer === userName) ? true : false;
+  },[product])
+
   const NavigationPage = ()=>{
     let page = ((!retrievingCustomer) && customer) ? "/zoom" : "/account/login";
     console.log(`Based on user login(retrievingCustomer - ${retrievingCustomer})(${customer})) navigate to - ${page}`);
@@ -62,6 +70,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
             <div className="flex items-center gap-x-2">
               <span>{product.title}</span>
               <span>—</span>
+              {parsedHighestBid > 0? (<div className="flex items-end gap-x-2 text-gray-700">
+                  <span>
+                    {bidWinner ? `Highest bid was - ${highestBid} you are winner. Please contact us.`
+                    : `Highest bid was - ${highestBid} winner - ${userName}` }
+                  </span>
+                </div>
+
+              ):
+              <div>
               {selectedPrice ? (
                 <div className="flex items-end gap-x-2 text-gray-700">
                   {selectedPrice.price_type === "sale" && (
@@ -82,6 +99,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
               ) : (
                 <div />
               )}
+              </div>}
             </div>
             <div className="grid grid-cols-2 w-full gap-x-4">
               <Button onClick={open} variant="secondary">
@@ -94,8 +112,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({ product, show }) => {
                   <ChevronDown />
                 </div>
               </Button>
-              <Button onClick= {()=>{{addToCart}; NavigationPage()}}>
-                {!inStock ? "Out of stock" : "Place your bid"}
+              <Button onClick= {()=>{{addToCart}; NavigationPage()}} className = {clsx({"disabled": parsedHighestBid,})}>
+                {!inStock ? "Out of stock" : buttonText}
               </Button>
             </div>
           </div>
